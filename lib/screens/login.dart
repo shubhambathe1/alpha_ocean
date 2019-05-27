@@ -1,9 +1,36 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:io';
+
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 import './dashboard.dart';
+
+
+Future<void> _ackAlert(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Not in stock'),
+        content: const Text('This item is no longer available'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key, this.title}) : super(key: key);
@@ -26,22 +53,82 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String _phone = 'default';
   String _password = '';
-  int _counter = 0;
 
   bool isTappedDown = false;
 
   final myPhoneController = TextEditingController();
   final myPasswordController = TextEditingController();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  initState() {
+    super.initState();
+
+    print("Reached");
+    // getData();
+  }
+
+  //        body: {
+//          'mobile': '911234567890',
+//          'password': '123456',
+//        },
+
+  Future<String> userLogin() async {
+    final response = await http.get(
+      Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    // return postFromJson(response.body);
+    List data = json.decode(response.body);
+    debugPrint(data.toString());
+    // print(_password);
+  }
+
+  Future<String> getData(BuildContext context) async {
+    var body = {
+      'mobile': _phone,
+      'password': _password,
+    };
+
+    final response = await http.post(
+        Uri.encodeFull(
+            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
+        headers: {
+          // HttpHeaders.contentTypeHeader: 'application/json'
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+        body: json.encode(body),
+        encoding: Encoding.getByName("utf-8"));
+    // return postFromJson(response.body);
+
+    final data = json.decode(response.body);
+    debugPrint(data['status'].toString());
+
+    if (data['status']) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => DashboardScreen(),
+          ));
+    } else {
+
+      _ackAlert(context);
+
+      //print("DEAD");
+//      AlertDialog(
+//        title: Text('Alert'),
+//        content: const Text('Sorry wrong credentials...'),
+//        actions: <Widget>[
+//          FlatButton(
+//            child: Text('Ok'),
+//            onPressed: () {
+//              // Navigator.of(context).pop();
+//              print("Cancelled");
+//            },
+//          ),
+//        ],
+//      );
+    }
   }
 
   void _submitValues() {
@@ -70,11 +157,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//      appBar: AppBar(
-//        // Here we take the value from the MyHomePage object that was created by
-//        // the App.build method, and use it to set our appbar title.
-//        title: Text(widget.title),
-//      ),
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
         child: Container(
@@ -179,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //                                                });
 //                                              },
                                               autofocus: false,
-                                              maxLength: 10,
+                                              maxLength: 12,
                                               style: new TextStyle(
                                                   fontSize: 20,
                                                   color: Colors.white),
@@ -196,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 labelText: 'Mobile Number',
                                               ),
                                               keyboardType:
-                                              TextInputType.number),
+                                                  TextInputType.number),
                                         ),
                                       ),
                                     ),
@@ -269,36 +351,41 @@ class _LoginScreenState extends State<LoginScreen> {
 //                                    const BoxDecoration(color: Colors.orange),
 
                                 child: Center(
-                                  child: CupertinoButton(
-                                    child: new Container(
-                                      width: 220.0,
-                                      height: 52.0,
-                                      decoration: new BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
+                              child: CupertinoButton(
+                                child: new Container(
+                                  width: 220.0,
+                                  height: 52.0,
+                                  decoration: new BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
                                         new BorderRadius.circular(100.0),
-                                      ),
-                                      child: new Center(
-                                        child: new Text(
-                                          'Submit',
-                                          style: new TextStyle(
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.blue),
-                                        ),
-                                      ),
+                                  ),
+                                  child: new Center(
+                                    child: new Text(
+                                      'Submit',
+                                      style: new TextStyle(
+                                          fontSize: 22.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.blue),
                                     ),
-                                    onPressed: () {
+                                  ),
+                                ),
+                                onPressed: () {
+
+                                  //_ackAlert(context);
+
+                                  // userLogin();
+                                  getData(context);
 //                                  setState(() {
 //                                    print('hello');
 //                                  });
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (BuildContext context) => DashboardScreen(),
-                                          ));
-                                    },
-                                  ),
+//                                      Navigator.push(
+//                                          context,
+//                                          MaterialPageRoute(
+//                                            builder: (BuildContext context) => DashboardScreen(),
+//                                          ));
+                                },
+                              ),
 
 //                                  child: InkWell(
 //                                    onTap: () => print('hello'),
@@ -357,7 +444,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //                                          print('Swiped Horizontally');
 //                                        },
 //                                      ),
-                                )),
+                            )),
                             flex: 1,
                           ),
                         ],
