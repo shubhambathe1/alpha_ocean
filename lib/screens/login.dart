@@ -10,14 +10,13 @@ import 'dart:convert';
 
 import './dashboard.dart';
 
-
 Future<void> _ackAlert(BuildContext context) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Not in stock'),
-        content: const Text('This item is no longer available'),
+        title: Text('Alert'),
+        content: const Text('Invalid User Credentials, Please try again...'),
         actions: <Widget>[
           FlatButton(
             child: Text('Ok'),
@@ -30,7 +29,6 @@ Future<void> _ackAlert(BuildContext context) {
     },
   );
 }
-
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key, this.title}) : super(key: key);
@@ -52,89 +50,95 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   String _phone = 'default';
-  String _password = '';
+  String _password = 'default';
 
   bool isTappedDown = false;
 
   final myPhoneController = TextEditingController();
-
   final myPasswordController = TextEditingController();
 
-  // String newText='';
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   @override
   initState() {
     super.initState();
 
     myPhoneController.addListener(() {
-
       _phone = myPhoneController.text;
       // print(myPhoneController.text);
     });
+
+    myPasswordController.addListener(() {
+      _password = myPasswordController.text;
+      // print(myPasswordController.text);
+    });
   }
 
-
-//  Future<String> userLogin() async {
-//    final response = await http.get(
-//      Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
-//      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-//    );
-//    // return postFromJson(response.body);
-//    List data = json.decode(response.body);
-//    debugPrint(data.toString());
-//    // print(_password);
-//  }
+  Future<String> userLogin() async {
+    final response = await http.get(
+      Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    // return postFromJson(response.body);
+    List data = json.decode(response.body);
+    debugPrint(data.toString());
+    // print(_password);
+  }
 
   Future<String> getData(BuildContext context) async {
+    // print(_phone + ' ' + _password);
 
-    print(_phone);
+    var body = {
+      'mobile': _phone,
+      'password': _password,
+    };
 
-//    var body = {
-//      'mobile': _phone,
-//      'password': _password,
-//    };
-//
-//    final response = await http.post(
-//        Uri.encodeFull(
-//            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
-//        headers: {
-//          // HttpHeaders.contentTypeHeader: 'application/json'
-//          "content-type": "application/json",
-//          "accept": "application/json",
-//        },
-//        body: json.encode(body),
-//        encoding: Encoding.getByName("utf-8"));
-//    // return postFromJson(response.body);
-//
-//    var data = json.decode(response.body);
-//    debugPrint(data['status'].toString());
-//
-//    if (data['status']) {
-//      Navigator.push(
-//          context,
-//          MaterialPageRoute(
-//            builder: (BuildContext context) => DashboardScreen(),
-//          ));
-//    } else {
-//
-//      _ackAlert(context);
-//
-//      print("DEAD");
-//      AlertDialog(
-//        title: Text('Alert'),
-//        content: const Text('Sorry wrong credentials...'),
-//        actions: <Widget>[
-//          FlatButton(
-//            child: Text('Ok'),
-//            onPressed: () {
-//              // Navigator.of(context).pop();
-//              print("Cancelled");
-//            },
-//          ),
-//        ],
-//      );
-//    }
+    final response = await http.post(
+        Uri.encodeFull(
+            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
+        headers: {
+          // HttpHeaders.contentTypeHeader: 'application/json'
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+        body: json.encode(body),
+        encoding: Encoding.getByName("utf-8"));
+    // return postFromJson(response.body);
 
+    var data = json.decode(response.body);
+    debugPrint(data['status'].toString());
+
+    if (data['status']) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => DashboardScreen(),
+          ));
+    } else {
+      _ackAlert(context);
+
+      AlertDialog(
+        title: Text(
+          'Alert',
+          style: TextStyle(
+            fontSize: 32.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        content: const Text('Wrong User Credentials...'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              // Navigator.of(context).pop();
+              print("Cancelled");
+            },
+          ),
+        ],
+      );
+    }
   }
 
   void _submitValues() {
@@ -160,11 +164,18 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
+
         child: Container(
             decoration: new BoxDecoration(
               image: new DecorationImage(
@@ -172,8 +183,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 fit: BoxFit.cover,
               ),
             ),
+
             child: Container(
+
 //                decoration: new BoxDecoration(color: Colors.red),
+
               child: Column(
                 children: <Widget>[
                   Expanded(
@@ -250,6 +264,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                           padding: const EdgeInsets.all(20.0),
                                           child: TextFormField(
                                               controller: myPhoneController,
+                                              focusNode: _phoneFocus,
+                                              textInputAction:
+                                                  TextInputAction.next,
+                                              onFieldSubmitted: (value) {
+                                                _fieldFocusChange(
+                                                    context,
+                                                    _phoneFocus,
+                                                    _passwordFocus);
+                                              },
 //                                              onFieldSubmitted: (String value) {
 //                                                setState(() {
 //                                                  _phone = value;
@@ -279,8 +302,14 @@ class _LoginScreenState extends State<LoginScreen> {
 //                                                      color: Colors.white,
 //                                                      width: 0.0),
 //                                                ),
-                                                icon: Icon(Icons.phone,
-                                                    color: Colors.white),
+                                                icon:
+//                                                Icon(Icons.phone,
+//                                                    color: Colors.white),
+                                                Image.asset(
+                                                  'images/phone.png',
+                                                  height: 35,
+                                                  width: 35,
+                                                ),
                                                 labelText: 'Mobile Number',
                                               ),
                                               keyboardType:
@@ -318,11 +347,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                           padding: const EdgeInsets.all(20.0),
                                           child: TextFormField(
                                             controller: myPasswordController,
-                                            onFieldSubmitted: (String value) {
-                                              setState(() {
-                                                _password = value;
-                                              });
+                                            focusNode: _passwordFocus,
+                                            textInputAction:
+                                                TextInputAction.done,
+                                            onFieldSubmitted: (value) {
+                                              _passwordFocus.unfocus();
                                             },
+//                                            onFieldSubmitted: (String value) {
+//                                              setState(() {
+//                                                _password = value;
+//                                              });
+//                                            },
                                             obscureText: true,
                                             autofocus: false,
                                             maxLength: 10,
@@ -336,8 +371,14 @@ class _LoginScreenState extends State<LoginScreen> {
 //                                                    color: Colors.white,
 //                                                    width: 0.0),
 //                                              ),
-                                              icon: Icon(Icons.vpn_key,
-                                                  color: Colors.white),
+                                              icon:
+//                                              Icon(Icons.vpn_key,
+//                                                  color: Colors.white),
+                                              Image.asset(
+                                                'images/key.png',
+                                                height: 35,
+                                                width: 35,
+                                              ),
                                               labelText: 'Password',
                                             ),
                                           ),
@@ -377,19 +418,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 onPressed: () {
-
-                                  //_ackAlert(context);
-
-                                  // userLogin();
                                   getData(context);
-//                                  setState(() {
-//                                    print('hello');
-//                                  });
-//                                      Navigator.push(
-//                                          context,
-//                                          MaterialPageRoute(
-//                                            builder: (BuildContext context) => DashboardScreen(),
-//                                          ));
                                 },
                               ),
 
@@ -459,34 +488,42 @@ class _LoginScreenState extends State<LoginScreen> {
                     flex: 3,
                   ),
                   Expanded(
-                    child: Container(
-                      // decoration: const BoxDecoration(color: Colors.blue),
-                      child: Center(
-                        child: Text(
-                          "Don't have a account? Register Here",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                    child: InkWell(
+                      // When the user taps the button, show a snackbar
+                      onTap: () {
+//                      Scaffold.of(context).showSnackBar(SnackBar(
+//                        content: Text('Tap'),
+//                      ));
+                        print("Tapped");
+                      },
+                      child: Container(
+                        // decoration: const BoxDecoration(color: Colors.blue),
+                        child: Center(
+                          child: Text(
+                            "Don't have a account? Register Here",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                         ),
                       ),
                     ),
+
+//                    child: Container(
+//                      // decoration: const BoxDecoration(color: Colors.blue),
+//                      child: Center(
+//                        child: Text(
+//                          "Don't have a account? Register Here",
+//                          style: TextStyle(fontSize: 18, color: Colors.white),
+//                        ),
+//                      ),
+//                    ),
                     flex: 1,
                   ),
 
                   // The InkWell Wraps our custom flat button Widget
-                  InkWell(
-                    // When the user taps the button, show a snackbar
-                    onTap: () {
-//                      Scaffold.of(context).showSnackBar(SnackBar(
-//                        content: Text('Tap'),
-//                      ));
-                      print("Tapped");
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text('Flat Button'),
-                    ),
-                  ),
                 ],
               ),
+
+
             )),
       ),
 
