@@ -57,64 +57,69 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isTappedDown = false;
 
   final myPhoneController = TextEditingController();
+
   final myPasswordController = TextEditingController();
+
+  // String newText='';
 
   @override
   initState() {
     super.initState();
 
-    print("Reached");
-    // getData();
+    myPhoneController.addListener(() {
+
+      _phone = myPhoneController.text;
+      // print(myPhoneController.text);
+    });
   }
 
-  //        body: {
-//          'mobile': '911234567890',
-//          'password': '123456',
-//        },
 
-  Future<String> userLogin() async {
-    final response = await http.get(
-      Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-    // return postFromJson(response.body);
-    List data = json.decode(response.body);
-    debugPrint(data.toString());
-    // print(_password);
-  }
+//  Future<String> userLogin() async {
+//    final response = await http.get(
+//      Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
+//      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+//    );
+//    // return postFromJson(response.body);
+//    List data = json.decode(response.body);
+//    debugPrint(data.toString());
+//    // print(_password);
+//  }
 
   Future<String> getData(BuildContext context) async {
-    var body = {
-      'mobile': _phone,
-      'password': _password,
-    };
 
-    final response = await http.post(
-        Uri.encodeFull(
-            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
-        headers: {
-          // HttpHeaders.contentTypeHeader: 'application/json'
-          "content-type": "application/json",
-          "accept": "application/json",
-        },
-        body: json.encode(body),
-        encoding: Encoding.getByName("utf-8"));
-    // return postFromJson(response.body);
+    print(_phone);
 
-    final data = json.decode(response.body);
-    debugPrint(data['status'].toString());
-
-    if (data['status']) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => DashboardScreen(),
-          ));
-    } else {
-
-      _ackAlert(context);
-
-      //print("DEAD");
+//    var body = {
+//      'mobile': _phone,
+//      'password': _password,
+//    };
+//
+//    final response = await http.post(
+//        Uri.encodeFull(
+//            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
+//        headers: {
+//          // HttpHeaders.contentTypeHeader: 'application/json'
+//          "content-type": "application/json",
+//          "accept": "application/json",
+//        },
+//        body: json.encode(body),
+//        encoding: Encoding.getByName("utf-8"));
+//    // return postFromJson(response.body);
+//
+//    var data = json.decode(response.body);
+//    debugPrint(data['status'].toString());
+//
+//    if (data['status']) {
+//      Navigator.push(
+//          context,
+//          MaterialPageRoute(
+//            builder: (BuildContext context) => DashboardScreen(),
+//          ));
+//    } else {
+//
+//      _ackAlert(context);
+//
+//      print("DEAD");
 //      AlertDialog(
 //        title: Text('Alert'),
 //        content: const Text('Sorry wrong credentials...'),
@@ -128,7 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
 //          ),
 //        ],
 //      );
-    }
+//    }
+
   }
 
   void _submitValues() {
@@ -244,11 +250,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                           padding: const EdgeInsets.all(20.0),
                                           child: TextFormField(
                                               controller: myPhoneController,
-                                              onFieldSubmitted: (String value) {
-                                                setState(() {
-                                                  _phone = value;
-                                                });
-                                              },
+//                                              onFieldSubmitted: (String value) {
+//                                                setState(() {
+//                                                  _phone = value;
+//                                                });
+//                                              },
 //                                              validator: (value) {
 //                                                if (value.isEmpty) {
 //                                                  print("BACK");
