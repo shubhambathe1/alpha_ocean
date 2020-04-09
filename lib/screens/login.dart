@@ -8,7 +8,11 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-import './dashboard.dart';
+import 'dashboard.dart';
+
+import 'package:fluttertoast/fluttertoast.dart';
+
+//import './dashboard.dart';
 
 Future<void> _ackAlert(BuildContext context) {
   return showDialog<void>(
@@ -89,56 +93,63 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<String> getData(BuildContext context) async {
     // print(_phone + ' ' + _password);
 
-    var body = {
-      'mobile': _phone,
-      'password': _password,
-    };
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => DashboardScreen(),
+      ),
+    );
 
-    final response = await http.post(
-        Uri.encodeFull(
-            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
-        headers: {
-          // HttpHeaders.contentTypeHeader: 'application/json'
-          "content-type": "application/json",
-          "accept": "application/json",
-        },
-        body: json.encode(body),
-        encoding: Encoding.getByName("utf-8"));
-    // return postFromJson(response.body);
-
-    var data = json.decode(response.body);
-    debugPrint(data['status'].toString());
-
-    if (data['status']) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => DashboardScreen(),
-          ));
-    } else {
-      _ackAlert(context);
-
-      AlertDialog(
-        title: Text(
-          'Alert',
-          style: TextStyle(
-            fontSize: 32.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        content: const Text('Wrong User Credentials...'),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Ok'),
-            onPressed: () {
-              // Navigator.of(context).pop();
-              print("Cancelled");
-            },
-          ),
-        ],
-      );
-    }
+//    var body = {
+//      'mobile': _phone,
+//      'password': _password,
+//    };
+//
+//    final response = await http.post(
+//        Uri.encodeFull(
+//            'http://portfolio.theaxontech.com/CI/alphaocean/userLogin'),
+//        headers: {
+//          // HttpHeaders.contentTypeHeader: 'application/json'
+//          "content-type": "application/json",
+//          "accept": "application/json",
+//        },
+//        body: json.encode(body),
+//        encoding: Encoding.getByName("utf-8"));
+//    // return postFromJson(response.body);
+//
+//    var data = json.decode(response.body);
+//    debugPrint(data['status'].toString());
+//
+//    if (data['status']) {
+//      Navigator.push(
+//          context,
+//          MaterialPageRoute(
+//            builder: (BuildContext context) => DashboardScreen(),
+//          ));
+//    } else {
+//      _ackAlert(context);
+//
+//      AlertDialog(
+//        title: Text(
+//          'Alert',
+//          style: TextStyle(
+//            fontSize: 32.0,
+//            fontWeight: FontWeight.bold,
+//            color: Colors.white,
+//          ),
+//        ),
+//        content: const Text('Wrong User Credentials...'),
+//        actions: <Widget>[
+//          FlatButton(
+//            child: Text('Ok'),
+//            onPressed: () {
+//              // Navigator.of(context).pop();
+//              print("Cancelled");
+//            },
+//          ),
+//        ],
+//      );
+//    }
   }
 
   void _submitValues() {
@@ -173,9 +184,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-
         child: Container(
             decoration: new BoxDecoration(
               image: new DecorationImage(
@@ -183,16 +193,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-
             child: Container(
-
-//                decoration: new BoxDecoration(color: Colors.red),
+              // decoration: new BoxDecoration(color: Colors.red),
 
               child: Column(
                 children: <Widget>[
                   Expanded(
                     child: Container(
-//                    decoration: const BoxDecoration(color: Colors.red),
+                      // decoration: const BoxDecoration(color: Colors.red),
                       child: Column(
                         children: <Widget>[
                           Expanded(
@@ -226,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                            flex: 1,
+                            // flex: 1,
                           ),
                         ],
                       ),
@@ -305,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 icon:
 //                                                Icon(Icons.phone,
 //                                                    color: Colors.white),
-                                                Image.asset(
+                                                    Image.asset(
                                                   'images/phone.png',
                                                   height: 35,
                                                   width: 35,
@@ -374,7 +382,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               icon:
 //                                              Icon(Icons.vpn_key,
 //                                                  color: Colors.white),
-                                              Image.asset(
+                                                  Image.asset(
                                                 'images/key.png',
                                                 height: 35,
                                                 width: 35,
@@ -491,10 +499,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: InkWell(
                       // When the user taps the button, show a snackbar
                       onTap: () {
-//                      Scaffold.of(context).showSnackBar(SnackBar(
-//                        content: Text('Tap'),
-//                      ));
+//                        Scaffold.of(context).showSnackBar(SnackBar(
+//                          content: Text('Register Here...'),
+//                        ));
                         print("Tapped");
+                        Fluttertoast.showToast(
+                            msg: "Register Here...",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.redAccent,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
                       },
                       child: Container(
                         // decoration: const BoxDecoration(color: Colors.blue),
@@ -522,8 +538,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   // The InkWell Wraps our custom flat button Widget
                 ],
               ),
-
-
             )),
       ),
 
